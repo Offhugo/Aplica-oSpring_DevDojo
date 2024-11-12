@@ -9,7 +9,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "Spring")
-public abstract class AnimeMapper {
+public abstract class  AnimeMapper {
     public static AnimeMapper INSTANCE = Mappers.getMapper(AnimeMapper.class);
 
     public abstract Anime toAnime(AnimesPostRequestBody animesPostRequestBodyRequestBody);
