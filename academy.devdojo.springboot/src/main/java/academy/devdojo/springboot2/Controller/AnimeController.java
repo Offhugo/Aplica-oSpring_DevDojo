@@ -36,7 +36,7 @@ public class AnimeController {
     }
 
     @GetMapping(path = "/find")
-    public ResponseEntity<List<Anime>> findById(@RequestParam(required = false) String nome, @RequestParam(defaultValue = "null") long id){
+    public ResponseEntity<List<Anime>> findByNome(@RequestParam(required = false) String nome, @RequestParam(defaultValue = "null") long id){
         return ResponseEntity.ok(animeService.findByNome(nome));
     }
 
