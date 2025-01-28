@@ -1,5 +1,6 @@
 package academy.devdojo.springboot2.Service;
 
+import academy.devdojo.springboot2.Exception.BadRequestException;
 import academy.devdojo.springboot2.Mapper.AnimeMapper;
 import academy.devdojo.springboot2.Repository.AnimeRepository;
 import academy.devdojo.springboot2.domain.Anime;
@@ -27,9 +28,10 @@ public class AnimeService {
         return animeRepository.findByNome(nome);
     }
 
-    public Anime findByIdOrThrowBadRequestexception(long id){         // ENCONTRA O ID DO ANIME PARA RETORNAR O CONTEUDO + ID
+    // note que para o handler funcionar, aqui devemos fazer a exceção condizer com o handler
+    public Anime findByIdOrThrowBadRequestexception(long id) {
         return animeRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Anime not found"));
+                .orElseThrow(() -> new BadRequestException("Anime not found"));
     }
 
     //CRIA UM NOVO ID E RECEBE UMA NOVA STRING COM OUTRO ANIME
