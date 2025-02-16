@@ -6,10 +6,10 @@ import academy.devdojo.springboot2.Repository.AnimeRepository;
 import academy.devdojo.springboot2.domain.Anime;
 import academy.devdojo.springboot2.requests.AnimesPostRequestBody;
 import academy.devdojo.springboot2.requests.AnimesPutRequestBody;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,11 +19,13 @@ public class AnimeService {
 
     private final AnimeRepository animeRepository;
 
+    @Transactional
     public List<Anime> ListAll(){
         // A LISTA EM SI
         return animeRepository.findAll();
     }
 
+    @Transactional
     public List<Anime> findByNome(String nome){
         return animeRepository.findByNome(nome);
     }
