@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,9 +30,9 @@ public class AnimeController {
 
     @GetMapping
     @Transactional
-    public List<Anime> list(){
+    public ResponseEntity<Page<Anime>> list(Pageable pageable){
         log.info(datautil.formatLocalDataTimeToDatabasestyle(LocalDateTime.now()));
-        return animeService.ListAll();
+        return ResponseEntity.ok(animeService.ListAll(pageable));
     }
 
     @GetMapping(path = "/{id}")

@@ -6,8 +6,9 @@ import academy.devdojo.springboot2.Repository.AnimeRepository;
 import academy.devdojo.springboot2.domain.Anime;
 import academy.devdojo.springboot2.requests.AnimesPostRequestBody;
 import academy.devdojo.springboot2.requests.AnimesPutRequestBody;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,9 @@ public class AnimeService {
     private final AnimeRepository animeRepository;
 
     @Transactional
-    public List<Anime> ListAll(){
+    public Page<Anime> ListAll(Pageable pageable){
         // A LISTA EM SI
-        return animeRepository.findAll();
+        return animeRepository.findAll(pageable);
     }
 
     @Transactional

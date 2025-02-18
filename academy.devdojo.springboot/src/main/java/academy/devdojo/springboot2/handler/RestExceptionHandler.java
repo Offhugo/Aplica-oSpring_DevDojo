@@ -2,17 +2,20 @@ package academy.devdojo.springboot2.handler;
 
 import academy.devdojo.springboot2.Exception.BadRequestException;
 import academy.devdojo.springboot2.Exception.BadRequestExceptionDetails;
+import academy.devdojo.springboot2.Exception.ExceptionDetails;
 import academy.devdojo.springboot2.Exception.ValidationExceptionDetails;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,10 +25,10 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @Log4j2
 @Order(1)
-public class RestExceptionHandler {
+public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<BadRequestExceptionDetails> handlerBadRequestException(
+    public ResponseEntity<BadRequestExceptionDetails> handleBadRequestException(
             BadRequestException bre){
         System.out.println("Handler chamado para BadRequestException");
         return new ResponseEntity<>(
@@ -39,12 +42,12 @@ public class RestExceptionHandler {
         );
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ValidationExceptionDetails> handlerMethodArgumentNotValidException(
-            MethodArgumentNotValidException exeptionMAN){
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
         // Capta os dados violados
-        List<FieldError> fieldErrorList = exeptionMAN.getBindingResult().getFieldErrors();
+        List<FieldError> fieldErrorList = ex.getBindingResult().getFieldErrors();
 
         // Percorre os dados extraidos tranformando-os em string e os separa por virgula
         String fildes = fieldErrorList.stream().map(FieldError::getField).collect(Collectors.joining(", "));
@@ -57,7 +60,7 @@ public class RestExceptionHandler {
                         .status(HttpStatus.BAD_REQUEST.value())
                         .title("bad request Exception, Invalid Fileds")
                         .details("Check the fileds errors")
-                        .developerMessage(exeptionMAN.getClass().getName())
+                        .developerMessage(ex.getClass().getName())
                         .fields(fildes)
                         .fieldsMessage(fildesMessage)
                         .build(), HttpStatus.BAD_REQUEST
@@ -65,7 +68,7 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ValidationExceptionDetails> handlerConstraintViolationException(
+    public ResponseEntity<ValidationExceptionDetails> handleConstraintViolationException(
             ConstraintViolationException exceptionCVE){
 
         // Captura as violações de validação (Set de ConstraintViolation)
@@ -93,5 +96,20 @@ public class RestExceptionHandler {
                         .fieldsMessage(fieldMessages)
                         .build(), HttpStatus.BAD_REQUEST
         );
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+       ExceptionDetails exceptionDetails = BadRequestExceptionDetails.builder()
+                .timeStamp(LocalDateTime.now())
+                .status(status.value())
+                .title(ex.getCause().getMessage())
+                .details(ex.getMessage())
+                .developerMessage(ex.getClass().getName())
+                .build();
+
+        return handleExceptionInternal(ex, exceptionDetails, headers, status, request);
     }
 }
